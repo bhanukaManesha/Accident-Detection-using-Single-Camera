@@ -20,13 +20,19 @@ def batchnpz2npy(file_path):
         npz2npy(file_path+item, file_path+"ext/")
         print("Extracting " + item + " done")
 
-def sep_frame_object():
-    pass
+def sep_frame_object(data_object):
+        full_feature = data_object[:,:,0,:]
+        object_features = data_object[:,:,1:,:]
+        # combine_frame_object(full_feature,object_features)
 
-def combine_frame_object():
-    pass
+def combine_frame_object(full_feature,object_features):
+        full_feature = np.expand_dims(full_feature, axis=2)
+        data = np.concatenate((full_feature,object_features), axis=2)
+        return data
+
 
 if __name__ == "__main__":
-    batchnpz2npy('test/testing_features/')
+    n = load('train/training_features/data001.npy')
+    sep_frame_object(n)
     
 
