@@ -1,4 +1,6 @@
 .DS_Store
+test/arc/
+train/arc/
 Anticipating-Accidents/dataset/
 Anticipating-Accidents/.DS_Store
 test/testing_videos/

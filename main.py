@@ -12,16 +12,15 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 ############### Global Parameters ###############
 # path
-train_path = './dataset/features/training/'
-test_path = './dataset/features/testing/'
-demo_path = './dataset/features/testing/'
+train_path = './train/training_features/'
+test_path = './test/testing_features/'
+demo_path = './test/testing_features/'
 default_model_path = './model/demo_model'
 save_path = './model/'
-video_path = './dataset/videos/testing/positive/'
+video_path = './test/testing_videos/positive/'
 # batch_number
 train_num = 126
 test_num = 46
-
 
 ############## Train Parameters #################
 
@@ -50,7 +49,6 @@ def parse_args():
     args = parser.parse_args()
 
     return args
-
 
 def build_model():
 
@@ -167,9 +165,8 @@ def train():
          tStart_epoch = time.time()
          for batch in n_batchs:
              file_name = '%03d' %batch
-             batch_data = np.load(train_path+'batch_'+file_name+'.npz')
-             batch_xs = batch_data['data']
-             batch_ys = batch_data['labels']
+             batch_xs = np.load(train_path+'data'+file_name+'.npy')
+             batch_ys = np.load(train_path+'labels'+file_name+'.npy')
              _,batch_loss = sess.run([optimizer,loss], feed_dict={x: batch_xs, y: batch_ys, keep: [0.5]})
              epoch_loss[batch-1] = batch_loss/batch_size
          # print one epoch
@@ -192,9 +189,8 @@ def test_all(sess,num,path,x,keep,y,loss,lstm_variables,soft_pred):
     for num_batch in range(1,num+1):
          # load test_data
          file_name = '%03d' %num_batch
-         test_all_data = np.load(path+'batch_'+file_name+'.npz')
-         test_data = test_all_data['data']
-         test_labels = test_all_data['labels']
+         test_data = np.load(path+'data'+file_name+'.npy')
+         test_labels = np.load(path+'labels'+file_name+'.npy')
          [temp_loss,pred] = sess.run([loss,soft_pred], feed_dict={x: test_data, y: test_labels, keep: [0.0]})
 
          total_loss += temp_loss/batch_size
@@ -305,6 +301,24 @@ def evaluation(all_pred,all_labels, total_time = 90, vis = False, length = None)
         plt.show()
 
 
+
+def test(model_path):
+    # load model
+    x,keep,y,optimizer,loss,lstm_variables,soft_pred,all_alphas = build_model()
+    # inistal Session
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
+    sess = tf.InteractiveSession(config=tf.ConfigProto(allow_soft_placement=True,gpu_options=gpu_options))
+    init = tf.global_variables_initializer()
+    sess.run(init)
+    saver = tf.train.Saver()
+    saver.restore(sess, model_path)
+    print("model restore!!!")
+    print("Training")
+    test_all(sess,train_num,train_path,x,keep,y,loss,lstm_variables,soft_pred)
+    print("Testing")
+    test_all(sess,test_num,test_path,x,keep,y,loss,lstm_variables,soft_pred)
+
+
 def vis(model_path):
     # build model
     x,keep,y,optimizer,loss,lstm_variables,soft_pred,all_alphas = build_model()
@@ -318,11 +332,11 @@ def vis(model_path):
     # load data
     for num_batch in range(1,test_num):
         file_name = '%03d' %num_batch
-        all_data = np.load(demo_path+'batch_'+file_name+'.npz')
-        data = all_data['data']
-        labels = all_data['labels']
-        det = all_data['det']
-        ID = all_data['ID']
+        data = np.load(demo_path+'data'+file_name+'.npy')
+        labels = np.load(demo_path+'labels'+file_name+'.npy')
+        det = np.load(demo_path+'det'+file_name+'.npy')
+        ID = np.load(demo_path+'ID'+file_name+'.npy')
+        
         # run result
         [all_loss,pred,weight] = sess.run([loss,soft_pred,all_alphas], feed_dict={x: data, y: labels, keep: [0.0]})
         file_list = sorted(os.listdir(video_path))
@@ -368,24 +382,6 @@ def vis(model_path):
                     counter += 1
 
             cv2.destroyAllWindows()
-
-
-
-def test(model_path):
-    # load model
-    x,keep,y,optimizer,loss,lstm_variables,soft_pred,all_alphas = build_model()
-    # inistal Session
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
-    sess = tf.InteractiveSession(config=tf.ConfigProto(allow_soft_placement=True,gpu_options=gpu_options))
-    init = tf.global_variables_initializer()
-    sess.run(init)
-    saver = tf.train.Saver()
-    saver.restore(sess, model_path)
-    print("model restore!!!")
-    print("Training")
-    test_all(sess,train_num,train_path,x,keep,y,loss,lstm_variables,soft_pred)
-    print("Testing")
-    test_all(sess,test_num,test_path,x,keep,y,loss,lstm_variables,soft_pred)
 
 
 
