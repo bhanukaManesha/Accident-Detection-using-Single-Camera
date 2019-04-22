@@ -8,6 +8,8 @@ import time
 import matplotlib.pyplot as plt
 import sys
 
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 ############### Global Parameters ###############
 # path
 train_path = './dataset/features/training/'
@@ -89,14 +91,16 @@ def build_model():
       with tf.variable_scope('model',reuse=tf.AUTO_REUSE):
         # input features (Faster-RCNN fc7)
         X = tf.transpose(x[:,i,:,:], [1, 0, 2])  # permute n_steps and batch_size (n x b x h)
+        # print(X)
         # frame embedded
         image = tf.matmul(X[0,:,:],weights['em_img']) + biases['em_img'] # 1 x b x h
         # object embedded
         n_object = tf.reshape(X[1:n_detection,:,:], [-1, n_input]) # (n_steps*batch_size, n_input)
+        # print(n_object)
         n_object = tf.matmul(n_object, weights['em_obj']) + biases['em_obj'] # (n x b) x h
         n_object = tf.reshape(n_object,[n_detection-1,batch_size,n_att_hidden]) # n-1 x b x h
         n_object = tf.multiply(n_object,tf.expand_dims(zeros_object[i],2))
-
+        # print(n_object)
         # object attention
         brcst_w = tf.tile(tf.expand_dims(weights['att_w'], 0), [n_detection-1,1,1]) # n x h x 1
         image_part = tf.matmul(n_object, tf.tile(tf.expand_dims(weights['att_ua'], 0), [n_detection-1,1,1])) + biases['att_ba'] # n x b x h
@@ -334,7 +338,9 @@ def vis(model_path):
                 bboxes = det[i]
                 new_weight = weight[:,:,i]*255
                 counter = 0
-                cap = cv2.VideoCapture(video_path+file_name+'.mp4')
+                path = video_path + file_name.decode('UTF-8') + ".mp4"
+                print(path)
+                cap = cv2.VideoCapture(path)
                 ret, frame = cap.read()
                 while(ret):
                     attention_frame = np.zeros((frame.shape[0],frame.shape[1]),dtype = np.uint8)
@@ -347,7 +353,8 @@ def vis(model_path):
                         else:
                             cv2.rectangle(frame,(new_bboxes[num_box,0],new_bboxes[num_box,1]),(new_bboxes[num_box,2],new_bboxes[num_box,3]),(255,0,0),2)
                         font = cv2.FONT_HERSHEY_SIMPLEX
-                        cv2.putText(frame,str(round(now_weight[num_box]/255.0*10000)/10000),(new_bboxes[num_box,0],new_bboxes[num_box,1]), font, 0.5,(0,0,255),1,cv2.CV_AA)
+                        # cv2.putText(frame,str(round(now_weight[num_box]/255.0*10000)/10000),(new_bboxes[num_box,0],new_bboxes[num_box,1]), font, 0.5,(0,0,255),1,cv2.CV_AA)
+                        cv2.putText(frame,str(round(now_weight[num_box]/255.0*10000)/10000),(new_bboxes[num_box,0],new_bboxes[num_box,1]), font, 0.5,(0,0,255),1)
                         attention_frame[int(new_bboxes[num_box,1]):int(new_bboxes[num_box,3]),int(new_bboxes[num_box,0]):int(new_bboxes[num_box,2])] = now_weight[num_box]
 
                     attention_frame = cv2.applyColorMap(attention_frame, cv2.COLORMAP_HOT)
