@@ -8,3 +8,4 @@ test/testing_videos/
 test/testing_features/
 train/training_features/
 train/training_videos/
+*.asv
