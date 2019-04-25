@@ -19,13 +19,21 @@ vgg_base = [
 ssd = [
     vgg_base
     convolution2dLayer(1, 256, 'Name', 'conv8_1')
+    reluLayer('Name', 'relu8_1')
     convolution2dLayer(3, 512, 'Stride', 2, 'Padding', [1 1 1 1], 'Name', 'conv8_2')
+    reluLayer('Name', 'relu8_2')
     convolution2dLayer(1, 128, 'Name', 'conv9_1')
+    reluLayer('Name', 'relu9_1')
     convolution2dLayer(3, 256, 'Stride', 2, 'Padding', [1 1 1 1], 'Name', 'conv9_2')
+    reluLayer('Name', 'relu9_2')
     convolution2dLayer(1, 128, 'Name', 'conv10_1')
+    reluLayer('Name', 'relu10_1')
     convolution2dLayer(3, 256, 'Name', 'conv10_2')
+    reluLayer('Name', 'relu10_2')
     convolution2dLayer(1, 128, 'Name', 'conv11_1')
+    reluLayer('Name', 'relu11_1')
     convolution2dLayer(3, 256, 'Name', 'conv11_2')
+    reluLayer('Name', 'relu11_2')
 ];
 
 ssd_graph = layerGraph(ssd);
@@ -51,31 +59,31 @@ loc3 = convolution2dLayer(3, 6 * 4, 'Padding', [1 1 1 1], 'Name', 'loc3');
 conf3 = convolution2dLayer(3, 6 * num_classes, 'Padding', [1 1 1 1], 'Name', 'conf3');
 ssd_graph = addLayers(ssd_graph, loc3);
 ssd_graph = addLayers(ssd_graph, conf3);
-ssd_graph = connectLayers(ssd_graph, 'conv8_2', 'loc3');
-ssd_graph = connectLayers(ssd_graph, 'conv8_2', 'conf3');
+ssd_graph = connectLayers(ssd_graph, 'relu8_2', 'loc3');
+ssd_graph = connectLayers(ssd_graph, 'relu8_2', 'conf3');
 
 % 6 default boxes
 loc4 = convolution2dLayer(3, 6 * 4, 'Padding', [1 1 1 1], 'Name', 'loc4');
 conf4 = convolution2dLayer(3, 6 * num_classes, 'Padding', [1 1 1 1], 'Name', 'conf4');
 ssd_graph = addLayers(ssd_graph, loc4);
 ssd_graph = addLayers(ssd_graph, conf4);
-ssd_graph = connectLayers(ssd_graph, 'conv9_2', 'loc4');
-ssd_graph = connectLayers(ssd_graph, 'conv9_2', 'conf4');
+ssd_graph = connectLayers(ssd_graph, 'relu9_2', 'loc4');
+ssd_graph = connectLayers(ssd_graph, 'relu9_2', 'conf4');
 
 % 4 default boxes
 loc5 = convolution2dLayer(3, 4 * 4, 'Padding', [1 1 1 1], 'Name', 'loc5');
 conf5 = convolution2dLayer(3, 4 * num_classes, 'Padding', [1 1 1 1], 'Name', 'conf5');
 ssd_graph = addLayers(ssd_graph, loc5);
 ssd_graph = addLayers(ssd_graph, conf5);
-ssd_graph = connectLayers(ssd_graph, 'conv10_2', 'loc5');
-ssd_graph = connectLayers(ssd_graph, 'conv10_2', 'conf5');
+ssd_graph = connectLayers(ssd_graph, 'relu10_2', 'loc5');
+ssd_graph = connectLayers(ssd_graph, 'relu10_2', 'conf5');
 
 % 4 default boxes
 loc6 = convolution2dLayer(3, 4 * 4, 'Padding', [1 1 1 1], 'Name', 'loc6');
 conf6 = convolution2dLayer(3, 4 * num_classes, 'Padding', [1 1 1 1], 'Name', 'conf6');
 ssd_graph = addLayers(ssd_graph, loc6);
 ssd_graph = addLayers(ssd_graph, conf6);
-ssd_graph = connectLayers(ssd_graph, 'conv11_2', 'loc6');
-ssd_graph = connectLayers(ssd_graph, 'conv11_2', 'conf6');
+ssd_graph = connectLayers(ssd_graph, 'relu11_2', 'loc6');
+ssd_graph = connectLayers(ssd_graph, 'relu11_2', 'conf6');
 
 plot(ssd_graph)
