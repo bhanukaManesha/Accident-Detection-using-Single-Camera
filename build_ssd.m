@@ -87,6 +87,32 @@ function ssd = build_ssd()
     ssd_graph = connectLayers(ssd_graph, 'relu11_2', 'loc6');
     ssd_graph = connectLayers(ssd_graph, 'relu11_2', 'conf6');
 
+    % concatanate the loc layers
+    concat_loc = depthConcatenationLayer(6,'Name','concat_loc');
+    ssd_graph = addLayers(ssd_graph, concat_loc);
+    ssd_graph = connectLayers(ssd_graph, 'loc1', 'concat_loc/in1');
+    ssd_graph = connectLayers(ssd_graph, 'loc2', 'concat_loc/in2');
+    ssd_graph = connectLayers(ssd_graph, 'loc3', 'concat_loc/in3');
+    ssd_graph = connectLayers(ssd_graph, 'loc4', 'concat_loc/in4');
+    ssd_graph = connectLayers(ssd_graph, 'loc5', 'concat_loc/in5');
+    ssd_graph = connectLayers(ssd_graph, 'loc6', 'concat_loc/in6');
+    
+    % concatanate the conf layers
+    concat_conf = depthConcatenationLayer(6,'Name','concat_conf');
+    ssd_graph = addLayers(ssd_graph, concat_conf);
+    ssd_graph = connectLayers(ssd_graph, 'conf1', 'concat_conf/in1');
+    ssd_graph = connectLayers(ssd_graph, 'conf2', 'concat_conf/in2');
+    ssd_graph = connectLayers(ssd_graph, 'conf3', 'concat_conf/in3');
+    ssd_graph = connectLayers(ssd_graph, 'conf4', 'concat_conf/in4');
+    ssd_graph = connectLayers(ssd_graph, 'conf5', 'concat_conf/in5');
+    ssd_graph = connectLayers(ssd_graph, 'conf6', 'concat_conf/in6');
+    
+    % concatanate all
+    concat_all = depthConcatenationLayer(2,'Name','concat_all');
+    ssd_graph = addLayers(ssd_graph, concat_all);
+    ssd_graph = connectLayers(ssd_graph, 'concat_loc', 'concat_all/in1');
+    ssd_graph = connectLayers(ssd_graph, 'concat_conf', 'concat_all/in2');
+    
     plot(ssd_graph)
     
     %return the ssd graph
