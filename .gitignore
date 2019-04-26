@@ -9,3 +9,5 @@ test/testing_features/
 train/training_features/
 train/training_videos/
 *.asv
+ssd_training/
+test_ssd/
