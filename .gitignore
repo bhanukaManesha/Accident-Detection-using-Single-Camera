@@ -10,3 +10,14 @@ SSD/ssd_training/
 Accindet_Detection/*.asv
 SSD/ssd_training/
 SSD/test_ssd/
+Accident_Detection/test/
+Accident_Detection/train/
+SSD/matconvnet.nosync/imagenet-googlenet-dag.mat
+SSD/matconvnet.nosync/imagenet-vgg-f.mat
+SSD/matconvnet.nosync/data/
+SSD/kitti_dataset/
+
+
+SSD/matconvnet.nosync/.gitattributes
+SSD/matconvnet.nosync/.gitignore
+SSD/matconvnet.nosync/.gitmodules
